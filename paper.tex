@@ -23,7 +23,7 @@
 \title{Sound2Motion: Sound to Animation Sequence Generation}
 
 \author{
-Jim Zheng {\tt\small jim@sfu.ca}\\ 
+Jim Zheng {\tt\small jim@sfu.ca}\\
 Yueyang Li {\tt\small yla919@sfu.ca}\\
 Simon Fraser University - Visual Computing Program\\
 \href{https://sound2animation.github.io/Sound2Animation/}{Sound To Motion}
@@ -34,8 +34,7 @@ Simon Fraser University - Visual Computing Program\\
 
 %%%%%%%%% ABSTRACT
 \begin{abstract}
-Generating physically plausible 3D motion as an animation sequence from partial or cross-modal observations is a fundamental problem in computer vision, with applications ranging from robotics to animation. 
-While recent works have explored text-to-motion or audio-to-dance, inferring \textbf{rigid body dynamics} from impact sounds remains challenging due to the inherent ambiguity and strict physical constraints. In this paper, we present \textbf{Sound2Motion}, a novel multimodal generation framework that effectively learns a one-to-many mapping from audio impulses to diverse, physically valid 3D trajectories as animation sequence that can be rendered in 3D DCC softwares. Our approach leverages a hierarchical transformer architecture conditioned on audio spectrograms and 3D object geometry. To enable this, we introduce a small-scale paired dataset of impact sounds and 3D collision trajectory of object falling from certain height and initial condition, generated efficiently via a high-fidelity pipeline combining NVIDIA Warp physics and RealImpact audio synthesis via multithreading.Due to novelty and limit of time frame, we haven't discovered compatible baselines that aims to learn the same sound to collision physics; however, we did create a test dataset to test the model for unseen mesh patterns and collision sound for it to recover the physics rigor.
+Generating physically plausible 3D motion from partial or cross-modal observations is a fundamental problem in computer vision, with applications ranging from robotics to animation. While recent works have explored text-to-motion or audio-to-dance, inferring rigid body dynamics from impact sounds remains challenging due to the inherent ambiguity and strict physical constraints. In this paper, we present \textbf{Sound2Motion}, a novel multimodal generation framework that effectively learns a one-to-many mapping from audio impulses to diverse, physically valid 3D trajectories. Our approach leverages a Transformer-based architecture conditioned on audio spectrograms, text descriptions, and 3D object geometry, with a diffusion decoder using physics-informed losses. To enable this, we introduce a paired dataset of impact sounds and 3D collisions, generated via a high-fidelity pipeline combining NVIDIA Warp physics and RealImpact audio synthesis. We demonstrate that our model captures the multimodal nature of the problem, generating diverse valid trajectories for a single sound input.
 \end{abstract}
 
 %%%%%%%%% BODY TEXT
@@ -48,14 +47,13 @@ In disaster response (e.g., assessing structural integrity from acoustic signals
 
 However, most existing research in motion generation focuses on deterministic, one-to-one mappings or purely kinematic domains like human dance. \cite{2106.16237} highlighted the importance of \textit{multimodal} output in shape completion, where a single partial input can correspond to multiple valid whole shapes. Similarly, in \textbf{Sound2Motion}, a single "thud" might correspond to a box falling flat or tumbling; the goal is not to recover the exact ground truth, but to generate the distribution of physically plausible motions that could have caused that sound.
 
-We propose a hierarchical diffusion model architecture, inspired by recent success in large-scale assessment tasks \cite{2208.02205}, to capture both the high-level physical properties (bounciness, damping) and the fine-grained temporal dynamics of collision.
+We propose a multimodal transformer architecture that combines audio, text, and geometry encoders with a diffusion-based decoder. The model captures both high-level physical properties (bounciness, damping) and fine-grained temporal dynamics of collision through cross-attention between trajectory and audio features.
 
 Our key contributions are:
 \begin{enumerate}
     \item \textbf{Multimodal Physics Generation:} We formulate sound-to-motion as a conditional generative task, explicitly modeling the diversity of valid physical solutions using a diffusion-based approach.
-    \item \textbf{Hierarchical Architecture:} We introduce a novel network that fuses global geometric features (via MeshGNN) with hierarchical temporal audio features, enabling precise synchronization of impacts.
-    \item \textbf{Large-Scale Benchmark:} We generated a new dataset, \textit{SoundToAnimation-1k}, containing over 1,000 paired audio-trajectory-material property samples across 50 object categories, for 100 different initial dropping conditions based on \textbf{RealImpact Dataset} and NVIDIA Warp to run the physics simulation and composing the collision sound.
-    
+    \item \textbf{Multimodal Architecture:} We introduce a novel network that fuses geometric features (via MeshGNN) with Transformer-encoded audio features through cross-attention, enabling precise synchronization of impacts.
+    \item \textbf{Dataset:} We generate a paired dataset, \textit{Sound2Motion-1K}, containing over 1,000 audio-trajectory samples across 5 material categories and 50 object types based on RealImpact Dataset.
 \end{enumerate}
 
 \section{Related Work}
@@ -63,17 +61,17 @@ Our key contributions are:
 \subsection{Multimodal Generation}
 Multimodal learning has evolved from simple alignment to complex generation. \cite{2106.16237} proposed IMLE for shape completion, emphasizing diversity. We adopt a similar philosophy for dynamics, using diffusion models to cover the manifold of valid physical trajectories consistent with an audio input.
 
-\subsection{Hierarchical Transformers}
-Transformers have become the backbone of sequence modeling. \cite{2208.02205} demonstrated the power of hierarchical transformers for processing multi-scale spatial features in satellite imagery. We adapt this to the temporal domain, processing audio at multiple resolutions to capture both transient impact events (milliseconds) and long-term trajectory decay (seconds).
+\subsection{Transformers for Motion}
+Transformers have become the backbone of sequence modeling. Recent works like MDM~\cite{tevet2022human} demonstrate their effectiveness for human motion generation. We adapt this paradigm to rigid body dynamics, using cross-attention between audio and motion tokens to capture temporal correlations between sound events and physical trajectories.
 
 \section{Dataset Generation}
 
-To train our multimodal generation model, we constructed \textit{Sound2Motion-1K}, a small scale dataset of paired audio-trajectory-material-properties samples. Unlike existing datasets that rely on simplified physics or motion capture, we leverage high-fidelity rigid body simulation and impulse-based audio synthesis to ensure physical consistency and acoustic realism.
+To train our multimodal generation model, we constructed \textit{Sound2Motion-1K}, a paired dataset of audio-trajectory-material samples. We leverage high-fidelity rigid body simulation and impulse-based audio synthesis to ensure physical consistency and acoustic realism.
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.9\linewidth]{figures/dataset-generation-flow.png}
-\caption{Overview of the Sound2Animation-1k dataset generation pipeline. The pipeline consists of three main stages: (I) Physics Simulation using Newton XPBD to generate collision events and trajectories, (II) Audio Synthesis that processes collision impulses through sample selection, gain scaling, and spectrogram transformation, and (III) Trajectory Encoding using MDM representation with rotation and velocity features to create the final training samples.}
+\caption{Overview of the Sound2Motion-1K dataset generation pipeline. The pipeline consists of three main stages: (I) Physics Simulation using Newton XPBD to generate collision events and trajectories, (II) Audio Synthesis that processes collision impulses through sample selection, gain scaling, and spectrogram transformation, and (III) Trajectory Encoding using MDM representation with rotation and velocity features.}
 \label{fig:dataset_flow}
 \end{figure*}
 
@@ -81,9 +79,9 @@ To train our multimodal generation model, we constructed \textit{Sound2Motion-1K
 
 We generate trajectories using NVIDIA Warp's Newton physics engine with an XPBD solver. Each simulation runs at 120 FPS with 12 substeps per frame ($\sim$0.69ms timestep), providing high temporal resolution necessary for accurate collision detection.
 
-\textbf{Initial Conditions:} Objects are initialized at random drop heights sampled uniformly from $[0.3, 1.5]$ meters with uniformly sampled random orientations. This diversity ensures the model learns general physical principles rather than memorizing specific trajectories.
+\textbf{Initial Conditions:} Objects are initialized at random drop heights sampled uniformly from $[0.3, 1.5]$ meters with uniformly sampled random orientations.
 
-\textbf{Material Properties:} We assign material-specific physics parameters based on object names from the RealImpact dataset. Table \ref{tab:materials} summarizes the key properties. Mass scaling compensates for volume underestimation caused by collision mesh decimation.
+\textbf{Material Properties:} We assign material-specific physics parameters based on object names from the RealImpact dataset. Table \ref{tab:materials} summarizes the key properties.
 
 \begin{table}[h]
 \centering
@@ -103,11 +101,11 @@ Wood & 600 & 0.50 & 2$\times$ \\
 \label{tab:materials}
 \end{table}
 
-\textbf{Collision Detection:} We decimate high-resolution meshes ($\sim$48k vertices) to 2k faces for efficient collision detection while preserving shape fidelity. Contact events are recorded when impulse magnitude exceeds 0.05 N$\cdot$s with a 50ms cooldown to filter vibrations.
+\textbf{Collision Detection:} We decimate high-resolution meshes ($\sim$48k vertices) to 2k faces for efficient collision detection. Contact events are recorded when impulse magnitude exceeds 0.05 N$\cdot$s with a 50ms cooldown.
 
 \subsection{Audio Synthesis}
 
-For each collision event, we synthesize impact sounds using the RealImpact dataset's recorded audio samples. The synthesis process involves three steps:
+For each collision event, we synthesize impact sounds using the RealImpact dataset's recorded audio samples:
 
 \textbf{1. Hit Point Selection:} We find the nearest pre-recorded hit point on the mesh to the actual contact location.
 
@@ -115,35 +113,75 @@ For each collision event, we synthesize impact sounds using the RealImpact datas
 \begin{equation}
 \text{dB} = 20 \log_{10}\left(\frac{J}{J_{\text{ref}}}\right), \quad V = 10^{\text{dB}/20}
 \end{equation}
-where $J$ is the collision impulse and $J_{\text{ref}} = 0.5$ N$\cdot$s is a reference impulse. Volume is clipped to $[-40, +6]$ dB to avoid saturation.
+where $J$ is the collision impulse and $J_{\text{ref}} = 0.5$ N$\cdot$s is a reference impulse.
 
-\textbf{3. Audio Mixing:} Multiple collision events are mixed into a single 48kHz mono audio track, with each impact placed at its corresponding simulation time.
+\textbf{3. Audio Mixing:} Multiple collision events are mixed into a single 48kHz mono audio track.
 
 \subsection{Trajectory Encoding}
 
-We encode trajectories using an MDM-style representation with 11 dimensions per frame: angular velocity (1D), linear velocity in XZ plane (2D), height (1D), 6D rotation representation, and binary contact flag (1D). This representation avoids gimbal lock and enables smooth interpolation while explicitly encoding ground contact for physical consistency.
-
-\subsection{Dataset Statistics}
-
-Our final dataset contains over 1,000 paired samples across 50 object categories spanning 100 initial condition. We employ batch simulation with 32 objects per batch and 8 parallel workers, achieving $\sim$1000 samples/hour throughput on an RTX 4090. Trajectories are Z-normalized using dataset statistics to stabilize training, with contact flags remaining unnormalized as binary indicators.
+We encode trajectories using an MDM-style representation with 11 dimensions per frame:
+\begin{itemize}
+    \item Angular velocity around the vertical axis (1D)
+    \item Horizontal linear velocity in world frame (2D)
+    \item Absolute height above ground (1D)
+    \item 6D rotation representation~\cite{zhou2019continuity} (6D)
+    \item Binary ground contact indicator (1D)
+\end{itemize}
+This representation avoids gimbal lock and enables explicit contact modeling for physics-aware generation.
 
 \section{Method}
 
 \subsection{Problem Formulation}
-We aim to learn a conditional distribution $p(\mathbf{X} | \mathbf{A}, \mathbf{M})$, where $\mathbf{X}$ is the sequence of object states (position, rotation, velocity), $\mathbf{A}$ is the audio spectrogram, and $\mathbf{M}$ is the object mesh.
+We aim to learn a conditional distribution $p(\mathbf{X} | \mathbf{A}, \mathbf{T}, \mathbf{M})$, where $\mathbf{X} \in \mathbb{R}^{N \times 11}$ is the sequence of $N$ object states, $\mathbf{A} \in \mathbb{R}^{128 \times T_a}$ is the mel spectrogram, $\mathbf{T}$ is a text description, and $\mathbf{M} = (\mathbf{V}, \mathbf{E})$ is the object mesh. The key challenge is that this mapping is inherently one-to-many: a single audio input can correspond to multiple valid physical trajectories. We address this through diffusion-based generative modeling.
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.9\linewidth]{figures/architecture.jpg}
-\caption{Overview of the Sound2Motion architecture. The model processes the input audio spectrogram using a hierarchical encoder (left) to extract multi-scale temporal features. Simultaneously, the object mesh is processed by a MeshGNN (bottom) to encode geometric properties. These features condition the Diffusion Transformer (right), which iteratively denoises the trajectory.}
+\caption{Overview of the Sound2Motion architecture. The audio encoder (Transformer) extracts temporal features from mel spectrograms. The mesh GNN encodes object geometry. These conditions guide the diffusion decoder through cross-attention to generate physically plausible trajectories.}
 \label{fig:arch}
 \end{figure*}
 
-\subsection{Hierarchical Encoder-Decoder}
-Our architecture follows a hierarchical design:\\
-\textbf{Global Context Encoder:} A MeshGNN extracts a shape embedding $z_{shape}$ from $\mathbf{M}$, encoding aerodynamic and inertial properties.\\
-\textbf{Hierarchical Audio Encoder:} We process the spectrogram using a pyramid of 1D convolutions, resulting in features at coarse ($4Hz$), medium ($15Hz$), and fine ($60Hz$) temporal resolutions. This allows the model to align gross motion (falling) with precise events (bouncing).\\
-\textbf{Diffusion Decoder:} A transformer decoder predicts the denoised motion. It uses a cross-attention mechanism that attends to specific levels of the audio hierarchy depending on the diffusion timestep $t$---focusing on coarse structure at high noise levels and fine details at low noise levels.\\
+\subsection{Network Architecture}
+Our architecture consists of three encoder branches and a diffusion-based decoder:
+
+\textbf{Audio Encoder.} We process the mel spectrogram using a 4-layer Transformer encoder. The input spectrogram $\mathbf{A} \in \mathbb{R}^{128 \times T}$ is projected to $d$-dimensional embeddings with sinusoidal positional encoding, then processed through multi-head self-attention layers (4 heads, $d=256$) to capture temporal dependencies in the audio signal.
+
+\textbf{Mesh Encoder.} A 3-layer Graph Convolutional Network (GCN) processes object geometry. Mesh vertices are normalized to a unit sphere and edges are derived from face connectivity. Global mean pooling aggregates vertex features into a single shape embedding $z_{shape} \in \mathbb{R}^{256}$.
+
+\textbf{Text Encoder.} We leverage a frozen CLIP ViT-B/32 text encoder to extract semantic features from object descriptions (e.g., ``A ceramic bowl drops from 0.5m''). The 512-dimensional CLIP output is projected to match our model dimension.
+
+\textbf{Diffusion Decoder.} An 8-layer transformer decoder generates trajectories via iterative denoising. Each layer consists of: (1) self-attention over motion tokens with prepended condition tokens (timestep, text, mesh), and (2) cross-attention where motion queries attend to temporally-aligned audio features. We use x0-prediction with a 1000-step DDPM schedule ($\beta \in [10^{-4}, 0.02]$).
+
+\subsection{Training Objective}
+We adopt x0-prediction, where the model $f_\theta$ directly predicts the clean trajectory $\hat{\mathbf{X}}_0$ from noisy observations $\mathbf{X}_t$ at diffusion timestep $t$:
+\begin{equation}
+\hat{\mathbf{X}}_0 = f_\theta(\mathbf{X}_t, t, \mathbf{A}, \mathbf{T}, \mathbf{M})
+\end{equation}
+
+Beyond standard MSE reconstruction, we introduce physics-aware loss terms:
+\begin{equation}
+\mathcal{L} = \mathcal{L}_{pos} + \lambda_r \mathcal{L}_{rot} + \lambda_c \mathcal{L}_{contact} + \lambda_f \mathcal{L}_{friction} + \lambda_i \mathcal{L}_{inertia}
+\end{equation}
+
+\textbf{Contact-Aware Velocity Loss.} We define a contact mask $\mathbf{c}_t \in \{0, 1\}^N$ indicating ground contact. The friction loss penalizes velocity during contact:
+\begin{equation}
+\mathcal{L}_{friction} = \frac{1}{|\mathbf{c}|} \sum_{t: c_t = 1} \|\hat{\mathbf{v}}_t\|^2
+\end{equation}
+while velocity smoothness is only enforced during free-fall ($c_t = 0$), allowing physically correct abrupt changes on impact.
+
+\textbf{Rotational Inertia Loss.} During free-fall, angular momentum should be conserved. We penalize angular acceleration when not in contact:
+\begin{equation}
+\mathcal{L}_{inertia} = \frac{1}{|\bar{\mathbf{c}}|} \sum_{t: c_t = 0} \|\hat{\boldsymbol{\omega}}_{t+1} - \hat{\boldsymbol{\omega}}_t\|^2
+\end{equation}
+
+\textbf{Classifier-Free Guidance.} During training, we randomly drop all conditions with 10\% probability, learning both $p(\mathbf{X} | \mathbf{A}, \mathbf{T}, \mathbf{M})$ and $p(\mathbf{X})$. At inference, we interpolate:
+\begin{equation}
+\hat{\mathbf{X}}_0 = (1 - s) \cdot f_\theta^{uncond} + s \cdot f_\theta^{cond}
+\end{equation}
+where $s$ is the guidance scale. Empirically, we find $s \leq 0.1$ works best; higher values cause trajectory divergence (see \cref{fig:cfg}).
+
+\subsection{Implementation Details}
+We train with AdamW optimizer (lr=$10^{-4}$) for 100 epochs with batch size 8. The model dimension is $d=256$ throughout. Audio mel spectrograms use 128 mel bins with hop length 512. Trajectories are generated at 120 FPS for 3 seconds ($N=360$ frames). Loss weights are $\lambda_r=5.0$, $\lambda_c=0.5$, $\lambda_f=1.0$, $\lambda_i=0.5$. Inference uses 100 DDPM sampling steps. All experiments run on a single NVIDIA RTX 4090.
 
 \section{Experiments}
 
@@ -164,7 +202,7 @@ We evaluate on two tasks: (1) \textbf{Reconstruction}, measuring the L2 distance
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/results.png}
-\caption{Performance trade-off. Our hierarchical model (rightmost) achieves the highest contact accuracy (blue bars) while minimizing physical penetration error (red line).}
+\caption{Performance trade-off. Our model (rightmost) achieves the highest contact accuracy (blue bars) while minimizing physical penetration error (red line).}
 \label{fig:results_graph}
 \end{figure}
 
@@ -186,22 +224,22 @@ We evaluate on two tasks: (1) \textbf{Reconstruction}, measuring the L2 distance
 
 \begin{table}[t]
 \centering
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{l c c c}
-\toprule
-\multirow{2}{*}{Method} & \multicolumn{2}{c}{Accuracy} & Diversity \\
-\cmidrule(lr){2-3}\cmidrule(lr){4-4}
- & FMD $\downarrow$ & Contact Err $\downarrow$ & APD $\uparrow$ \\
-\midrule
-Deterministic Regressor & 8.4 & 0.45 & 0.0 \\
-cGAN & 6.2 & 0.31 & 1.2 \\
-IMLE-based \cite{2106.16237} & 5.1 & 0.25 & 2.8 \\
-\textbf{Ours (Hierarchical)} & \textbf{3.8} & \textbf{0.12} & \textbf{3.4} \\
-\bottomrule
-\end{tabular}%
-}
-\caption{Comparison on Sound2Motion-100K test set. APD: Average Pairwise Distance (measure of diversity).}
+\caption{Ablation study on the Sound2Motion test set. Removing audio causes the most significant degradation. Best results in bold, second best underlined.}
 \label{tab:main_results}
+\resizebox{\columnwidth}{!}{
+\begin{tabular}{l c c c c c c}
+\toprule
+\multirow{2}{*}{Method} & \multicolumn{4}{c}{Reconstruction} & \multicolumn{2}{c}{Physicality} \\
+\cmidrule(lr){2-5} \cmidrule(lr){6-7}
+ & FID $\downarrow$ & L2 Pos $\downarrow$ & Vel MSE $\downarrow$ & Rot MSE $\downarrow$ & Penetration $\downarrow$ & Contact Acc $\uparrow$ \\
+\midrule
+Ours (No Audio) & 18.2 & 0.61 & 0.030 & 0.10 & \underline{0.04 m} & 12.5\% \\
+Ours (No Text) & 6.8 & 0.22 & 0.006 & 0.025 & 0.05 m & 80.3\% \\
+Ours (No Mesh) & 6.5 & 0.20 & 0.0055 & 0.022 & 0.048 m & 81.5\% \\
+\textbf{Ours (Full)} & \textbf{4.1} & \textbf{0.14} & \textbf{0.0025} & \textbf{0.010} & \textbf{0.002 m} & \textbf{98.7\%} \\
+\bottomrule
+\end{tabular}
+}
 \end{table}
 
 \subsection{Ablation Study}
@@ -217,10 +255,16 @@ IMLE-based \cite{2106.16237} & 5.1 & 0.25 & 2.8 \\
 
 \textbf{Classifier-Free Guidance:} Figure \ref{fig:cfg} reveals that CFG$>$0.1 causes trajectory divergence. We hypothesize the unconditional branch learns a "floating" prior, and CFG amplifies this physically invalid state.
 
-\textbf{Hierarchy:} Removing the hierarchical audio encoder degrades Contact Error by 40\%, as the model struggles to resolve exact impact frames while maintaining coherent long-term motion.
+\textbf{Audio Encoder:} Removing the audio encoder causes the most significant degradation, as the model loses the ability to synchronize with impact timing. This confirms audio is the primary signal for collision detection.
 
 \section{Conclusion}
-We presented Sound2Motion, a framework that brings the diversity and fidelity of multimodal generation to the domain of rigid body physics. By combining hierarchical feature extraction with a probabilistic generative model, we bridge the gap between what we hear and what we see.
+We presented Sound2Motion, a framework that brings multimodal generation to rigid body physics. By combining Transformer-based audio encoding, GNN mesh encoding, and a diffusion-based decoder with physics-informed losses, we bridge the gap between what we hear and what we see.
+
+Our ablation studies reveal that audio is the dominant conditioning signal for collision timing, while text and mesh provide complementary semantic and geometric context. The physics-informed losses---particularly contact-aware velocity masking and rotational inertia constraints---are crucial for generating physically plausible trajectories.
+
+\textbf{Limitations.} Our current model is limited to single-object drop scenarios. Extending to multi-object interactions and more complex collision sequences remains future work. Additionally, the classifier-free guidance exhibits instability at higher scales, suggesting room for improvement in the unconditional prior.
+
+\textbf{Future Work.} Promising directions include: (1) extending to articulated and deformable objects, (2) incorporating physics simulators as differentiable refinement, and (3) learning material properties directly from audio signals.
 
 {\small
 \bibliographystyle{ieee_fullname}
