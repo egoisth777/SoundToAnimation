@@ -191,7 +191,16 @@ We train with AdamW optimizer (lr=$10^{-4}$) for 100 epochs with batch size 8. T
 \section{Experiments}
 
 \subsection{Setup}
-We evaluate on two tasks: (1) \textbf{Reconstruction}, measuring the L2 distance to ground truth, and (2) \textbf{Diversity}, measuring the variance of generated hypotheses for a single input.
+\textbf{Dataset:} We use a held-out test set of 100 samples (10\% of training data) spanning all 5 material categories.
+
+\textbf{Metrics:} We report the following metrics:
+\begin{itemize}
+    \item \textbf{L2 Position}: Mean Euclidean distance between predicted and GT heights (meters)
+    \item \textbf{Velocity MSE}: Mean squared error of horizontal velocities
+    \item \textbf{Rotation MSE}: MSE of 6D rotation representations
+    \item \textbf{Penetration}: Maximum depth below ground plane (physics violation)
+    \item \textbf{Contact Accuracy}: Frame-wise accuracy of contact state prediction
+\end{itemize}
 
 \subsection{Qualitative Results}
 
@@ -201,6 +210,14 @@ We evaluate on two tasks: (1) \textbf{Reconstruction}, measuring the L2 distance
 \caption{Qualitative comparison across multiple ceramic objects. Each pair of rows shows GT (top) and Prediction (bottom) at four timesteps. The model captures the overall falling and settling dynamics while showing some deviation in rotation details.}
 \label{fig:qualitative}
 \end{figure*}
+
+Figure~\ref{fig:qualitative} presents visual comparisons between ground truth and predicted trajectories for several ceramic objects. The model successfully captures the overall falling dynamics, including the initial free-fall phase, impact timing, and settling behavior. We observe that:
+
+\textbf{Contact Timing:} The predicted contact frames closely match ground truth, demonstrating the audio encoder's ability to synchronize motion with impact sounds.
+
+\textbf{Rotation Recovery:} While absolute rotation angles show some deviation, the overall rotation patterns (tumbling vs. flat landing) are correctly captured.
+
+\textbf{Height Trajectory:} The vertical motion profile, including bounce height and decay rate, matches well with ground truth, indicating proper learning of material-specific restitution.
 
 \subsection{Quantitative Results}
 
@@ -229,23 +246,33 @@ We evaluate on two tasks: (1) \textbf{Reconstruction}, measuring the L2 distance
 
 \begin{table}[t]
 \centering
-\caption{Ablation study on the Sound2Motion test set. Removing audio causes the most significant degradation. Best results in bold, second best underlined.}
+\caption{Ablation study on the Sound2Motion test set. Removing audio causes the most significant degradation. Best results in bold.}
 \label{tab:main_results}
 \resizebox{\columnwidth}{!}{
-\begin{tabular}{l c c c c c c}
+\begin{tabular}{l c c c c c}
 \toprule
-\multirow{2}{*}{Method} & \multicolumn{4}{c}{Reconstruction} & \multicolumn{2}{c}{Physicality} \\
-\cmidrule(lr){2-5} \cmidrule(lr){6-7}
- & FID $\downarrow$ & L2 Pos $\downarrow$ & Vel MSE $\downarrow$ & Rot MSE $\downarrow$ & Penetration $\downarrow$ & Contact Acc $\uparrow$ \\
+\multirow{2}{*}{Method} & \multicolumn{3}{c}{Reconstruction} & \multicolumn{2}{c}{Physicality} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-6}
+ & L2 Pos $\downarrow$ & Vel MSE $\downarrow$ & Rot MSE $\downarrow$ & Penetration $\downarrow$ & Contact Acc $\uparrow$ \\
 \midrule
-Ours (No Audio) & 18.2 & 0.61 & 0.030 & 0.10 & \underline{0.04 m} & 12.5\% \\
-Ours (No Text) & 6.8 & 0.22 & 0.006 & 0.025 & 0.05 m & 80.3\% \\
-Ours (No Mesh) & 6.5 & 0.20 & 0.0055 & 0.022 & 0.048 m & 81.5\% \\
-\textbf{Ours (Full)} & \textbf{4.1} & \textbf{0.14} & \textbf{0.0025} & \textbf{0.010} & \textbf{0.002 m} & \textbf{98.7\%} \\
+Ours (No Audio) & 0.61 & 0.030 & 0.10 & 0.04 m & 12.5\% \\
+Ours (No Text) & 0.22 & 0.006 & 0.025 & 0.05 m & 80.3\% \\
+Ours (No Mesh) & 0.20 & 0.0055 & 0.022 & 0.048 m & 81.5\% \\
+\textbf{Ours (Full)} & \textbf{0.14} & \textbf{0.0025} & \textbf{0.010} & \textbf{0.002 m} & \textbf{98.7\%} \\
 \bottomrule
 \end{tabular}
 }
 \end{table}
+
+Table~\ref{tab:main_results} summarizes our ablation study across conditioning modalities. Several key observations emerge:
+
+\textbf{Audio Dominance:} Removing audio conditioning causes the most severe degradation (Contact Acc: 98.7\% $\rightarrow$ 12.5\%), confirming that collision sounds provide the primary signal for impact timing. Without audio, the model cannot determine when objects should contact the ground.
+
+\textbf{Complementary Modalities:} Removing text or mesh has relatively minor impact ($<$20\% accuracy drop), suggesting these modalities provide supplementary context (material semantics and shape) rather than timing information.
+
+\textbf{Physical Consistency:} The full model achieves near-zero penetration (0.002m) compared to ablated variants (0.04--0.05m), demonstrating that multimodal conditioning helps maintain physical plausibility.
+
+Figure~\ref{fig:detailed_analysis}(a) shows the contact accuracy distribution across test samples. The model achieves $>$95\% accuracy on the majority of samples, with occasional failures on objects with unusual geometries. Figure~\ref{fig:detailed_analysis}(b) reveals a positive correlation between reconstruction error and penetration depth, indicating that better motion prediction also leads to more physically valid trajectories.
 
 \subsection{Ablation Study}
 
