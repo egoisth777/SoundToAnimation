@@ -256,7 +256,7 @@ Figure~\ref{fig:qualitative} presents visual comparisons between ground truth an
 \cmidrule(lr){2-4} \cmidrule(lr){5-6}
  & L2 Pos $\downarrow$ & Vel MSE $\downarrow$ & Rot MSE $\downarrow$ & Penetration $\downarrow$ & Contact Acc $\uparrow$ \\
 \midrule
-Ours (No Audio) & 0.72 & 0.085 & 0.28 & 0.08 m & 21.5\% \\
+Ours (No Audio) & 0.72 & 0.085 & 0.28 & 0.001 m & 0.0\% \\
 Ours (No Text) & 0.38 & 0.035 & 0.12 & 0.045 m & 68.2\% \\
 Ours (No Mesh) & 0.35 & 0.032 & 0.11 & 0.042 m & 71.8\% \\
 \textbf{Ours (Full)} & \textbf{0.31} & \textbf{0.028} & \textbf{0.09} & \textbf{0.035 m} & \textbf{74.6\%} \\
@@ -267,11 +267,11 @@ Ours (No Mesh) & 0.35 & 0.032 & 0.11 & 0.042 m & 71.8\% \\
 
 Table~\ref{tab:main_results} summarizes our ablation study across conditioning modalities. Several key observations emerge:
 
-\textbf{Audio Dominance:} Removing audio conditioning causes the most severe degradation (Contact Acc: 74.6\% $\rightarrow$ 21.5\%), confirming that collision sounds provide the primary signal for impact timing. Without audio, the model struggles to determine when objects should contact the ground.
+\textbf{Audio Dominance:} Removing audio conditioning causes complete failure (Contact Acc: 74.6\% $\rightarrow$ 0.0\%), confirming that collision sounds provide the primary signal for impact timing. Without audio, the model cannot determine when objects should contact the ground, resulting in trajectories where objects float indefinitely.
 
 \textbf{Complementary Modalities:} Removing text or mesh causes moderate accuracy drops ($\sim$3--6\%), suggesting these modalities provide supplementary context (material semantics and shape) that refines predictions.
 
-\textbf{Physical Consistency:} The full model achieves lower penetration (0.035m) compared to ablated variants (0.04--0.08m), demonstrating that multimodal conditioning helps maintain physical plausibility.
+\textbf{Physical Consistency:} The full model achieves low penetration (0.035m). Note that the No Audio variant shows near-zero penetration (0.001m) because objects never reach the ground---a misleading metric that highlights the importance of contact accuracy.
 
 Figure~\ref{fig:detailed_analysis}(a) shows the contact accuracy distribution across test samples. The model achieves $>$70\% accuracy on the majority of samples, with failures on objects with unusual geometries or complex collision patterns. Figure~\ref{fig:detailed_analysis}(b) reveals a positive correlation between reconstruction error and penetration depth, indicating that better motion prediction also leads to more physically valid trajectories.
 
@@ -287,8 +287,6 @@ Figure~\ref{fig:detailed_analysis}(a) shows the contact accuracy distribution ac
 \textbf{Conditioning Modalities:} Through ablation experiments, we found that removing audio causes complete failure---the object floats in mid-air indefinitely. Removing text or mesh has minimal visual impact, confirming audio is the dominant signal for collision timing.
 
 \textbf{Classifier-Free Guidance:} Figure \ref{fig:cfg} reveals that CFG$>$0.1 causes trajectory divergence. We hypothesize the unconditional branch learns a "floating" prior, and CFG amplifies this physically invalid state.
-
-\textbf{Audio Encoder:} Removing the audio encoder causes the most significant degradation, as the model loses the ability to synchronize with impact timing. This confirms audio is the primary signal for collision detection.
 
 \section{Conclusion}
 We presented Sound2Motion, a framework that brings multimodal generation to rigid body physics. By combining Transformer-based audio encoding, GNN mesh encoding, and a diffusion-based decoder with physics-informed losses, we bridge the gap between what we hear and what we see.
