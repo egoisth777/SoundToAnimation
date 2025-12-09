@@ -65,6 +65,13 @@ Transformers have become the backbone of sequence modeling. \cite{2208.02205} de
 \subsection{Problem Formulation}
 We aim to learn a conditional distribution $p(\mathbf{X} | \mathbf{A}, \mathbf{M})$, where $\mathbf{X}$ is the sequence of object states (position, rotation, velocity), $\mathbf{A}$ is the audio spectrogram, and $\mathbf{M}$ is the object mesh.
 
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.9\linewidth]{figures/architecture.png}
+\caption{Overview of the Sound2Motion architecture. The model processes the input audio spectrogram using a hierarchical encoder (left) to extract multi-scale temporal features. Simultaneously, the object mesh is processed by a MeshGNN (bottom) to encode geometric properties. These features condition the Diffusion Transformer (right), which iteratively denoises the trajectory.}
+\label{fig:arch}
+\end{figure*}
+
 \subsection{Hierarchical Encoder-Decoder}
 Our architecture follows a hierarchical design:
 \begin{itemize}
@@ -87,6 +94,13 @@ Similar to \cite{2208.02205}, reliable data is key. We constructed a synthetic e
 We evaluate on two tasks: (1) \textbf{Reconstruction}, measuring the L2 distance to ground truth, and (2) \textbf{Diversity}, measuring the variance of generated hypotheses for a single input.
 
 \subsection{Quantitative Results}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/results.png}
+\caption{Performance trade-off. Our hierarchical model (rightmost) achieves the highest contact accuracy (blue bars) while minimizing physical penetration error (red line).}
+\label{fig:results_graph}
+\end{figure}
 
 \begin{table}[h]
 \centering
