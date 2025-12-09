@@ -48,13 +48,13 @@ In disaster response (e.g., assessing structural integrity from acoustic signals
 
 However, most existing research in motion generation focuses on deterministic, one-to-one mappings or purely kinematic domains like human dance. \cite{2106.16237} highlighted the importance of \textit{multimodal} output in shape completion, where a single partial input can correspond to multiple valid whole shapes. Similarly, in \textbf{Sound2Motion}, a single "thud" might correspond to a box falling flat or tumbling; the goal is not to recover the exact ground truth, but to generate the distribution of physically plausible motions that could have caused that sound.
 
-We propose a hierarchical transformer architecture, inspired by recent success in large-scale assessment tasks \cite{2208.02205}, to capture both the high-level physical properties (bounciness, damping) and the fine-grained temporal dynamics of collision.
+We propose a hierarchical diffusion model architecture, inspired by recent success in large-scale assessment tasks \cite{2208.02205}, to capture both the high-level physical properties (bounciness, damping) and the fine-grained temporal dynamics of collision.
 
 Our key contributions are:
 \begin{enumerate}
     \item \textbf{Multimodal Physics Generation:} We formulate sound-to-motion as a conditional generative task, explicitly modeling the diversity of valid physical solutions using a diffusion-based approach.
     \item \textbf{Hierarchical Architecture:} We introduce a novel network that fuses global geometric features (via MeshGNN) with hierarchical temporal audio features, enabling precise synchronization of impacts.
-    \item \textbf{Large-Scale Benchmark:} We generated a new dataset, \textit{SoundToAnimation}, containing over 1,000 paired audio-trajectory-material property samples across 50 object categories, for 100 different initial dropping condition based on \textbf{RealImpact Dataset} and NVIDIA Warp to run the physics simulation and composing the collision sound.
+    \item \textbf{Large-Scale Benchmark:} We generated a new dataset, \textit{SoundToAnimation-1k}, containing over 1,000 paired audio-trajectory-material property samples across 50 object categories, for 100 different initial dropping conditions based on \textbf{RealImpact Dataset} and NVIDIA Warp to run the physics simulation and composing the collision sound.
     
 \end{enumerate}
 
@@ -68,7 +68,14 @@ Transformers have become the backbone of sequence modeling. \cite{2208.02205} de
 
 \section{Dataset Generation}
 
-To train our multimodal generation model, we constructed \textit{Sound2Motion-100K}, a large-scale dataset of paired audio-trajectory samples. Unlike existing datasets that rely on simplified physics or motion capture, we leverage high-fidelity rigid body simulation and impulse-based audio synthesis to ensure physical consistency and acoustic realism.
+To train our multimodal generation model, we constructed \textit{Sound2Motion-1K}, a small scale dataset of paired audio-trajectory-material-properties samples. Unlike existing datasets that rely on simplified physics or motion capture, we leverage high-fidelity rigid body simulation and impulse-based audio synthesis to ensure physical consistency and acoustic realism.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.9\linewidth]{figures/dataset-generation-flow.png}
+\caption{Overview of the Sound2Animation-1k dataset generation pipeline. The pipeline consists of three main stages: (I) Physics Simulation using Newton XPBD to generate collision events and trajectories, (II) Audio Synthesis that processes collision impulses through sample selection, gain scaling, and spectrogram transformation, and (III) Trajectory Encoding using MDM representation with rotation and velocity features to create the final training samples.}
+\label{fig:dataset_flow}
+\end{figure*}
 
 \subsection{Physics Simulation}
 
@@ -118,7 +125,7 @@ We encode trajectories using an MDM-style representation with 11 dimensions per 
 
 \subsection{Dataset Statistics}
 
-Our final dataset contains over 100,000 paired samples across 50 object categories spanning 6 material types. We employ batch simulation with 32 objects per batch and 8 parallel workers, achieving $\sim$1000 samples/hour throughput on an RTX 3090 GPU. Trajectories are Z-normalized using dataset statistics to stabilize training, with contact flags remaining unnormalized as binary indicators.
+Our final dataset contains over 1,000 paired samples across 50 object categories spanning 100 initial condition. We employ batch simulation with 32 objects per batch and 8 parallel workers, achieving $\sim$1000 samples/hour throughput on an RTX 4090. Trajectories are Z-normalized using dataset statistics to stabilize training, with contact flags remaining unnormalized as binary indicators.
 
 \section{Method}
 
