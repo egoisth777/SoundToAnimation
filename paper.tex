@@ -111,6 +111,22 @@ We evaluate on two tasks: (1) \textbf{Reconstruction}, measuring the L2 distance
 \label{fig:results_graph}
 \end{figure}
 
+\begin{figure}[t]
+\centering
+\begin{subfigure}{0.48\linewidth}
+    \includegraphics[width=\linewidth]{figures/contact_accuracy_dist.png}
+    \caption{Distribution of contact accuracy.}
+    \label{fig:contact_dist}
+\end{subfigure}
+\begin{subfigure}{0.48\linewidth}
+    \includegraphics[width=\linewidth]{figures/error_scatter.png}
+    \caption{Reconstruction error vs. Penetration.}
+    \label{fig:error_scatter}
+\end{subfigure}
+\caption{Detailed Error Analysis. (a) shows our model consistently achieves high synchronization accuracy ($>99\%$). (b) shows a correlation between reconstruction error and physical violations; lower MSE corresponds to physically safer trajectories.}
+\label{fig:detailed_analysis}
+\end{figure}
+
 \begin{table}[h]
 \centering
 \begin{tabular}{l c c c}
