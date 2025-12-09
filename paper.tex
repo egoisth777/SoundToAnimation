@@ -35,7 +35,7 @@ Simon Fraser University - Visual Computing Program\\
 
 %%%%%%%%% ABSTRACT
 \begin{abstract}
-Generating physically plausible 3D motion from partial or cross-modal observations is a fundamental problem in computer vision, with applications ranging from robotics to animation. While recent works have explored text-to-motion or audio-to-dance, inferring rigid body dynamics from impact sounds remains challenging due to the inherent ambiguity and strict physical constraints. In this paper, we present \textbf{Sound2Motion}, a novel multimodal generation framework that effectively learns a one-to-many mapping from audio impulses to diverse, physically valid 3D trajectories. Our approach leverages a Transformer-based architecture conditioned on audio spectrograms, text descriptions, and 3D object geometry, with a diffusion decoder using physics-informed losses. To enable this, we introduce a paired dataset of impact sounds and 3D collisions, generated via a high-fidelity pipeline combining NVIDIA Warp physics and RealImpact audio synthesis. We demonstrate that our model captures the multimodal nature of the problem, generating diverse valid trajectories for a single sound input.
+Generating physically plausible 3D motion from partial or cross-modal observations is a fundamental problem in computer vision, with applications ranging from robotics to animation. While recent works have explored text-to-motion or audio-to-dance, inferring rigid body dynamics from impact sounds remains challenging due to the inherent ambiguity and strict physical constraints. In this paper, we present \textbf{Sound2Motion}, a multimodal generation framework that learns a one-to-many mapping from audio impulses to plausible 3D trajectories. Our approach leverages a Transformer-based architecture conditioned on audio spectrograms, text descriptions, and 3D object geometry, with a diffusion decoder using physics-informed losses. To enable this, we introduce a paired dataset of impact sounds and 3D collisions, generated via a high-fidelity pipeline combining NVIDIA Warp physics and RealImpact audio synthesis. We demonstrate that our model captures the multimodal nature of the problem, generating diverse valid trajectories for a single sound input.
 \end{abstract}
 
 %%%%%%%%% BODY TEXT
@@ -53,7 +53,7 @@ We propose a multimodal transformer architecture that combines audio, text, and 
 Our key contributions are:
 \begin{enumerate}
     \item \textbf{Multimodal Physics Generation:} We formulate sound-to-motion as a conditional generative task, explicitly modeling the diversity of valid physical solutions using a diffusion-based approach.
-    \item \textbf{Multimodal Architecture:} We introduce a novel network that fuses geometric features (via MeshGNN) with Transformer-encoded audio features through cross-attention, enabling precise synchronization of impacts.
+    \item \textbf{Multimodal Architecture:} We introduce a network that fuses geometric features (via MeshGNN) with Transformer-encoded audio features through cross-attention, enabling synchronization of motion with impact sounds.
     \item \textbf{Dataset:} We generate a paired dataset, \textit{Sound2Motion-1K}, containing over 1,000 audio-trajectory samples across 5 material categories and 50 object types based on RealImpact Dataset.
 \end{enumerate}
 
@@ -213,11 +213,11 @@ We train with AdamW optimizer (lr=$10^{-4}$) for 100 epochs with batch size 8. T
 
 Figure~\ref{fig:qualitative} presents visual comparisons between ground truth and predicted trajectories for several ceramic objects. The model successfully captures the overall falling dynamics, including the initial free-fall phase, impact timing, and settling behavior. We observe that:
 
-\textbf{Contact Timing:} The predicted contact frames closely match ground truth, demonstrating the audio encoder's ability to synchronize motion with impact sounds.
+\textbf{Contact Timing:} The predicted contact frames generally align with ground truth, demonstrating the audio encoder's ability to synchronize motion with impact sounds.
 
 \textbf{Rotation Recovery:} While absolute rotation angles show some deviation, the overall rotation patterns (tumbling vs. flat landing) are correctly captured.
 
-\textbf{Height Trajectory:} The vertical motion profile, including bounce height and decay rate, matches well with ground truth, indicating proper learning of material-specific restitution.
+\textbf{Height Trajectory:} The vertical motion profile, including bounce height and decay rate, shows reasonable correspondence with ground truth, suggesting the model learns material-specific restitution.
 
 \subsection{Quantitative Results}
 
@@ -289,7 +289,7 @@ Figure~\ref{fig:detailed_analysis}(a) shows the contact accuracy distribution ac
 \textbf{Classifier-Free Guidance:} Figure \ref{fig:cfg} reveals that CFG$>$0.1 causes trajectory divergence. We hypothesize the unconditional branch learns a "floating" prior, and CFG amplifies this physically invalid state.
 
 \section{Conclusion}
-We presented Sound2Motion, a framework that brings multimodal generation to rigid body physics. By combining Transformer-based audio encoding, GNN mesh encoding, and a diffusion-based decoder with physics-informed losses, we bridge the gap between what we hear and what we see.
+We presented Sound2Motion, a framework for audio-conditioned rigid body trajectory generation. By combining Transformer-based audio encoding, GNN mesh encoding, and a diffusion-based decoder with physics-informed losses, we take a step toward connecting auditory and visual understanding of physics.
 
 Our ablation studies reveal that audio is the dominant conditioning signal for collision timing, while text and mesh provide complementary semantic and geometric context. The physics-informed losses---particularly contact-aware velocity masking and rotational inertia constraints---are crucial for generating physically plausible trajectories.
 
