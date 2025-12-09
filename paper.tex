@@ -9,6 +9,7 @@
 \usepackage{booktabs}
 \usepackage{multirow}
 \usepackage{caption}
+\usepackage{subcaption}
 
 \usepackage[pagebackref,breaklinks,colorlinks]{hyperref}
 \usepackage[capitalize]{cleveref}
@@ -54,17 +55,21 @@ Our key contributions are:
 \begin{enumerate}
     \item \textbf{Multimodal Physics Generation:} We formulate sound-to-motion as a conditional generative task, explicitly modeling the diversity of valid physical solutions using a diffusion-based approach.
     \item \textbf{Hierarchical Architecture:} We introduce a novel network that fuses global geometric features (via MeshGNN) with hierarchical temporal audio features, enabling precise synchronization of impacts.
-    \item \textbf{Large-Scale Benchmark:} We generated a new dataset, \textit{SoundToAnimation-1k}, containing over 1,000 paired audio-trajectory-material property samples across 50 object categories, for 100 different initial dropping conditions based on \textbf{RealImpact Dataset} and NVIDIA Warp to run the physics simulation and composing the collision sound.
+    \item \textbf{Self-complete Benchmark:} We generated a new dataset, \textit{SoundToAnimation-1k}, containing over 1,000 paired audio-trajectory-material property samples across 50 object categories, for 100 different initial dropping conditions based on \textbf{RealImpact Dataset} and NVIDIA Warp to run the physics simulation and composing the collision sound.
     
 \end{enumerate}
 
 \section{Related Work}
 
-\subsection{Multimodal Generation}
-Multimodal learning has evolved from simple alignment to complex generation. \cite{2106.16237} proposed IMLE for shape completion, emphasizing diversity. We adopt a similar philosophy for dynamics, using diffusion models to cover the manifold of valid physical trajectories consistent with an audio input.
+\subsection{Motion Generation and Diffusion Models}
+\textbf{Motion Diffusion Model (MDM)} \cite{tevet2022human} pioneered the application of denoising diffusion probabilistic models (DDPM) \cite{ho2020denoising} to human motion generation, demonstrating superior quality and diversity compared to VAE and GAN-based approaches. MDM introduced a geometric trajectory representation using 6D rotation and velocity encoding, which we adapt for rigid body dynamics. However, MDM focuses on kinematic human motion conditioned on text, lacking the physical constraints (collisions, momentum conservation) necessary for rigid body dynamics.
 
-\subsection{Hierarchical Transformers}
-Transformers have become the backbone of sequence modeling. \cite{2208.02205} demonstrated the power of hierarchical transformers for processing multi-scale spatial features in satellite imagery. We adapt this to the temporal domain, processing audio at multiple resolutions to capture both transient impact events (milliseconds) and long-term trajectory decay (seconds).
+\textbf{X-Dancer} \cite{xdancer2025} extends diffusion models to audio-driven dance generation, using hierarchical audio encoders to capture multi-scale temporal features from music. While X-Dancer demonstrates effective audio-motion synchronization, it operates in the kinematic domain where physics violations (penetration, floating) are visually acceptable in dance. In contrast, our task requires strict adherence to Newtonian mechanics—a single missed collision fundamentally breaks physical plausibility.
+
+\subsection{Audio-Visual Learning and Physics Simulation}
+\textbf{RealImpact} \cite{clarke2024realimpact} provides a dataset of impact sound fields with recorded audio samples for 50 real-world objects across 3000 hit points. While RealImpact enables high-fidelity audio synthesis, it only provides static audio recordings without paired dynamic trajectories, limiting its use for learning audio-to-motion mappings.
+
+Physics engines like \textbf{NVIDIA Warp} \cite{warp2022} with XPBD solvers \cite{macklin2016xpbd} enable accurate rigid body simulation. However, existing works either use simplified physics for motion generation or focus on forward simulation rather than inverse problems (inferring motion from audio). Our work bridges this gap by pairing high-fidelity physics simulation with impulse-based audio synthesis to create a dataset for learning multimodal audio-to-motion generation under strict physical constraints.
 
 \section{Dataset Generation}
 
@@ -223,8 +228,8 @@ IMLE-based \cite{2106.16237} & 5.1 & 0.25 & 2.8 \\
 We presented Sound2Motion, a framework that brings the diversity and fidelity of multimodal generation to the domain of rigid body physics. By combining hierarchical feature extraction with a probabilistic generative model, we bridge the gap between what we hear and what we see.
 
 {\small
-\bibliographystyle{ieee_fullname}
-\bibliography{references}
+\bibliographystyle{IEEEtran}
+\bibliography{references/references}
 }
 
 \end{document}
