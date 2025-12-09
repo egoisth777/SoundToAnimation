@@ -93,6 +93,15 @@ Similar to \cite{2208.02205}, reliable data is key. We constructed a synthetic e
 \subsection{Setup}
 We evaluate on two tasks: (1) \textbf{Reconstruction}, measuring the L2 distance to ground truth, and (2) \textbf{Diversity}, measuring the variance of generated hypotheses for a single input.
 
+\subsection{Qualitative Results}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.9\linewidth]{figures/multi_object_timeline.png}
+\caption{Qualitative comparison across multiple ceramic objects. Each pair of rows shows GT (top) and Prediction (bottom) at four timesteps. The model captures the overall falling and settling dynamics while showing some deviation in rotation details.}
+\label{fig:qualitative}
+\end{figure*}
+
 \subsection{Quantitative Results}
 
 \begin{figure}[t]
@@ -120,8 +129,20 @@ IMLE-based \cite{2106.16237} & 5.1 & 0.25 & 2.8 \\
 \label{tab:main_results}
 \end{table}
 
-\subsection{Ablation: Hierarchy Matters}
-We found that removing the hierarchical audio encoder (using only a single resolution) degraded Contact Error by 40\%, as the model struggled to resolve the exact frame of impact while maintaining coherent long-term motion.
+\subsection{Ablation Study}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/cfg_comparison.png}
+\caption{Effect of CFG scale. Rows show GT, CFG=0.0, CFG=0.1, and CFG=1.0. Higher CFG causes trajectory divergence where objects never land. We use CFG=0 for inference.}
+\label{fig:cfg}
+\end{figure}
+
+\textbf{Conditioning Modalities:} Through ablation experiments, we found that removing audio causes complete failure---the object floats in mid-air indefinitely. Removing text or mesh has minimal visual impact, confirming audio is the dominant signal for collision timing.
+
+\textbf{Classifier-Free Guidance:} Figure \ref{fig:cfg} reveals that CFG$>$0.1 causes trajectory divergence. We hypothesize the unconditional branch learns a "floating" prior, and CFG amplifies this physically invalid state.
+
+\textbf{Hierarchy:} Removing the hierarchical audio encoder degrades Contact Error by 40\%, as the model struggles to resolve exact impact frames while maintaining coherent long-term motion.
 
 \section{Conclusion}
 We presented Sound2Motion, a framework that brings the diversity and fidelity of multimodal generation to the domain of rigid body physics. By combining hierarchical feature extraction with a probabilistic generative model, we bridge the gap between what we hear and what we see.
