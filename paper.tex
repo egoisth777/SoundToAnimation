@@ -73,9 +73,9 @@ Physics engines like \textbf{NVIDIA Warp} \cite{warp2022} with XPBD solvers \cit
 
 To train our multimodal generation model, we constructed \textit{Sound2Motion-1K}, a paired dataset of audio-trajectory-material samples. We leverage high-fidelity rigid body simulation and impulse-based audio synthesis to ensure physical consistency and acoustic realism.
 
-\begin{figure*}[t]
+\begin{figure*}[htb]
 \centering
-\includegraphics[width=0.9\linewidth]{figures/dataset-generation-flow.png}
+\includegraphics[width=0.75\textwidth]{figures/dataset-generation-flow.png}
 \caption{Overview of the Sound2Motion-1K dataset generation pipeline. The pipeline consists of three main stages: (I) Physics Simulation using Newton XPBD to generate collision events and trajectories, (II) Audio Synthesis that processes collision impulses through sample selection, gain scaling, and spectrogram transformation, and (III) Trajectory Encoding using MDM representation with rotation and velocity features.}
 \label{fig:dataset_flow}
 \end{figure*}
@@ -139,9 +139,9 @@ This representation avoids gimbal lock and enables explicit contact modeling for
 \subsection{Problem Formulation}
 We aim to learn a conditional distribution $p(\mathbf{X} | \mathbf{A}, \mathbf{T}, \mathbf{M})$, where $\mathbf{X} \in \mathbb{R}^{N \times 11}$ is the sequence of $N$ object states, $\mathbf{A} \in \mathbb{R}^{128 \times T_a}$ is the mel spectrogram, $\mathbf{T}$ is a text description, and $\mathbf{M} = (\mathbf{V}, \mathbf{E})$ is the object mesh. The key challenge is that this mapping is inherently one-to-many: a single audio input can correspond to multiple valid physical trajectories. We address this through diffusion-based generative modeling.
 
-\begin{figure*}[t]
+\begin{figure*}[htb]
 \centering
-\includegraphics[width=0.9\linewidth]{figures/architecture.jpg}
+\includegraphics[width=0.75\textwidth]{figures/architecture.jpg}
 \caption{Overview of the Sound2Motion architecture. The audio encoder (Transformer) extracts temporal features from mel spectrograms. The mesh GNN encodes object geometry. These conditions guide the diffusion decoder through cross-attention to generate physically plausible trajectories.}
 \label{fig:arch}
 \end{figure*}
@@ -204,9 +204,9 @@ We train with AdamW optimizer (lr=$10^{-4}$) for 100 epochs with batch size 8. T
 
 \subsection{Qualitative Results}
 
-\begin{figure*}[t]
+\begin{figure*}[htb]
 \centering
-\includegraphics[width=0.9\linewidth]{figures/multi_object_timeline.png}
+\includegraphics[width=0.75\textwidth]{figures/multi_object_timeline.png}
 \caption{Qualitative comparison across multiple ceramic objects. Each pair of rows shows GT (top) and Prediction (bottom) at four timesteps. The model captures the overall falling and settling dynamics while showing some deviation in rotation details.}
 \label{fig:qualitative}
 \end{figure*}
@@ -221,21 +221,22 @@ Figure~\ref{fig:qualitative} presents visual comparisons between ground truth an
 
 \subsection{Quantitative Results}
 
-\begin{figure}[t]
+\begin{figure}[htb]
 \centering
-\includegraphics[width=\linewidth]{figures/results.png}
+\includegraphics[width=0.85\linewidth]{figures/results.png}
 \caption{Performance trade-off. Our model (rightmost) achieves the highest contact accuracy (blue bars) while minimizing physical penetration error (red line).}
 \label{fig:results_graph}
 \end{figure}
 
-\begin{figure}[t]
+\begin{figure}[htb]
 \centering
-\begin{subfigure}{0.48\linewidth}
+\begin{subfigure}{0.45\linewidth}
     \includegraphics[width=\linewidth]{figures/contact_accuracy_dist.png}
     \caption{Distribution of contact accuracy.}
     \label{fig:contact_dist}
 \end{subfigure}
-\begin{subfigure}{0.48\linewidth}
+\hfill
+\begin{subfigure}{0.45\linewidth}
     \includegraphics[width=\linewidth]{figures/error_scatter.png}
     \caption{Reconstruction error vs. Penetration.}
     \label{fig:error_scatter}
@@ -276,9 +277,9 @@ Figure~\ref{fig:detailed_analysis}(a) shows the contact accuracy distribution ac
 
 \subsection{Ablation Study}
 
-\begin{figure}[t]
+\begin{figure}[htb]
 \centering
-\includegraphics[width=\linewidth]{figures/cfg_comparison.png}
+\includegraphics[width=0.85\linewidth]{figures/cfg_comparison.png}
 \caption{Effect of CFG scale. Rows show GT, CFG=0.0, CFG=0.1, and CFG=1.0. Higher CFG causes trajectory divergence where objects never land. We use CFG=0 for inference.}
 \label{fig:cfg}
 \end{figure}
