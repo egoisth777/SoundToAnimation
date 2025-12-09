@@ -1,4 +1,5 @@
 /references/
+/raw/
 
 # TeX compilation files
 *.aux
