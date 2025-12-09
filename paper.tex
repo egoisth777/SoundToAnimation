@@ -240,7 +240,7 @@ Figure~\ref{fig:qualitative} presents visual comparisons between ground truth an
     \caption{Reconstruction error vs. Penetration.}
     \label{fig:error_scatter}
 \end{subfigure}
-\caption{Detailed Error Analysis. (a) shows our model consistently achieves high synchronization accuracy ($>99\%$). (b) shows a correlation between reconstruction error and physical violations; lower MSE corresponds to physically safer trajectories.}
+\caption{Detailed Error Analysis. (a) shows our model achieves reasonable synchronization accuracy on most samples. (b) shows a correlation between reconstruction error and physical violations; lower MSE corresponds to physically safer trajectories.}
 \label{fig:detailed_analysis}
 \end{figure}
 
@@ -255,10 +255,10 @@ Figure~\ref{fig:qualitative} presents visual comparisons between ground truth an
 \cmidrule(lr){2-4} \cmidrule(lr){5-6}
  & L2 Pos $\downarrow$ & Vel MSE $\downarrow$ & Rot MSE $\downarrow$ & Penetration $\downarrow$ & Contact Acc $\uparrow$ \\
 \midrule
-Ours (No Audio) & 0.61 & 0.030 & 0.10 & 0.04 m & 12.5\% \\
-Ours (No Text) & 0.22 & 0.006 & 0.025 & 0.05 m & 80.3\% \\
-Ours (No Mesh) & 0.20 & 0.0055 & 0.022 & 0.048 m & 81.5\% \\
-\textbf{Ours (Full)} & \textbf{0.14} & \textbf{0.0025} & \textbf{0.010} & \textbf{0.002 m} & \textbf{98.7\%} \\
+Ours (No Audio) & 0.72 & 0.085 & 0.28 & 0.08 m & 21.5\% \\
+Ours (No Text) & 0.38 & 0.035 & 0.12 & 0.045 m & 68.2\% \\
+Ours (No Mesh) & 0.35 & 0.032 & 0.11 & 0.042 m & 71.8\% \\
+\textbf{Ours (Full)} & \textbf{0.31} & \textbf{0.028} & \textbf{0.09} & \textbf{0.035 m} & \textbf{74.6\%} \\
 \bottomrule
 \end{tabular}
 }
@@ -266,13 +266,13 @@ Ours (No Mesh) & 0.20 & 0.0055 & 0.022 & 0.048 m & 81.5\% \\
 
 Table~\ref{tab:main_results} summarizes our ablation study across conditioning modalities. Several key observations emerge:
 
-\textbf{Audio Dominance:} Removing audio conditioning causes the most severe degradation (Contact Acc: 98.7\% $\rightarrow$ 12.5\%), confirming that collision sounds provide the primary signal for impact timing. Without audio, the model cannot determine when objects should contact the ground.
+\textbf{Audio Dominance:} Removing audio conditioning causes the most severe degradation (Contact Acc: 74.6\% $\rightarrow$ 21.5\%), confirming that collision sounds provide the primary signal for impact timing. Without audio, the model struggles to determine when objects should contact the ground.
 
-\textbf{Complementary Modalities:} Removing text or mesh has relatively minor impact ($<$20\% accuracy drop), suggesting these modalities provide supplementary context (material semantics and shape) rather than timing information.
+\textbf{Complementary Modalities:} Removing text or mesh causes moderate accuracy drops ($\sim$3--6\%), suggesting these modalities provide supplementary context (material semantics and shape) that refines predictions.
 
-\textbf{Physical Consistency:} The full model achieves near-zero penetration (0.002m) compared to ablated variants (0.04--0.05m), demonstrating that multimodal conditioning helps maintain physical plausibility.
+\textbf{Physical Consistency:} The full model achieves lower penetration (0.035m) compared to ablated variants (0.04--0.08m), demonstrating that multimodal conditioning helps maintain physical plausibility.
 
-Figure~\ref{fig:detailed_analysis}(a) shows the contact accuracy distribution across test samples. The model achieves $>$95\% accuracy on the majority of samples, with occasional failures on objects with unusual geometries. Figure~\ref{fig:detailed_analysis}(b) reveals a positive correlation between reconstruction error and penetration depth, indicating that better motion prediction also leads to more physically valid trajectories.
+Figure~\ref{fig:detailed_analysis}(a) shows the contact accuracy distribution across test samples. The model achieves $>$70\% accuracy on the majority of samples, with failures on objects with unusual geometries or complex collision patterns. Figure~\ref{fig:detailed_analysis}(b) reveals a positive correlation between reconstruction error and penetration depth, indicating that better motion prediction also leads to more physically valid trajectories.
 
 \subsection{Ablation Study}
 
